@@ -1,0 +1,16 @@
+[Unit]
+Description=Grok Exporter for %i
+After=network.target
+
+[Service]
+Type=simple
+User={{ grok_exporter_system_user }}
+Group={{ grok_exporter_system_group }}
+Nice=-5
+ExecStart=/usr/local/bin/grok_exporter -conf %i.conf
+
+SyslogIdentifier=grok_exporter
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

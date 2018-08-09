@@ -1,0 +1,59 @@
+---
+
+- name: Create the grok_exporter group
+  group:
+    name: "{{ grok_exporter_system_group }}"
+    state: present
+    system: true
+
+- name: Create the grok_exporter user
+  user:
+    name: "{{ grok_exporter_system_user }}"
+    groups: "{{ grok_exporter_system_group }}"
+    append: true
+    shell: /usr/sbin/nologin
+    system: true
+    createhome: true
+    home: /etc/grok_exporter
+
+- name: Download grok_exporter archive
+  become: false
+  get_url:
+    url: "{{ grok_exporter_git_url }}/releases/download/v{{ grok_exporter_version }}/grok_exporter-{{ grok_exporter_version }}.linux-amd64.zip"
+    dest: "/tmp/grok_exporter-{{ grok_exporter_version }}.linux-amd64.zip"
+  register: _download_binary
+  until: _download_binary is succeeded
+  retries: 5
+  delay: 2
+  delegate_to: localhost
+  check_mode: false
+  run_once: true
+
+- name: Propagate grok_exporter to the machine we want it installed into
+  unarchive:
+    src: "/tmp/grok_exporter-{{ grok_exporter_version }}.linux-amd64.zip"
+    dest: "/etc/grok_exporter"
+    owner: "{{ grok_exporter_system_user }}"
+    group: "{{ grok_exporter_system_group }}"
+  notify: restart grok_exporter
+  when: not ansible_check_mode
+
+- name: Copy the Grok Exporter systemd service file
+  template:
+    src: grok_exporter.service.j2
+    dest: /etc/systemd/system/grok_exporter.service
+    owner: root
+    group: root
+    mode: 0644
+  with_items: "{{ grok_services }}"
+  notify: reload systemd for grok_exporters
+
+- name: If a new service was added SystemD needs to know about it
+  meta: flush_handlers
+
+- name: Make sure all grok_exporter*.service run at astartup
+  systemd:
+    name: "grok_exporter-{{ item.name }}.service"
+    enabled: yes
+    state: started
+  with_items: "{{ grok_services }}"

@@ -1,0 +1,11 @@
+---
+grok_exporter_version: 0.2.5
+
+grok_exporter_system_group: "grok_exporter"
+grok_exporter_system_user: "{{ grok_exporter_system_group }}"
+
+grok_exporter_export_ip: "{{ ansible_eth0.ipv4.address }}"
+
+grok_services:
+  - name: php-fpm-metrics
+    
