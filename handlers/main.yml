@@ -1,12 +1,13 @@
 ---
 
-- name: reload systemd for grok_exporter
+- name: reload systemd for grok_exporters
   become: true
   systemd:
     daemon_reload: true
 
-- name: restart grok_exporter
+- name: restart grok_exporters
   become: true
   systemd:
-    name: grok_exporter.service
+    name: "grok_exporter@{{ item.name }}.service"
     state: restarted
+  with_items: "{{ grok_services }}"

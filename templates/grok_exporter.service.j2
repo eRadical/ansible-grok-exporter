@@ -7,10 +7,11 @@ Type=simple
 User={{ grok_exporter_system_user }}
 Group={{ grok_exporter_system_group }}
 Nice=-5
-ExecStart=/usr/local/bin/grok_exporter -conf %i.conf
+ExecStart=/etc/grok_exporter/grok_exporter -config /etc/grok_exporter/%i.conf
 
-SyslogIdentifier=grok_exporter
+SyslogIdentifier="grok_exporter_%i"
 Restart=always
+StartLimitBurst=1000
 
 [Install]
 WantedBy=multi-user.target
