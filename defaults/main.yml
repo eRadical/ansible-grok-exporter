@@ -45,5 +45,5 @@ grok_services:
           api_request: "{{ '{{' }}.apirequest{{ '}}' }}"
           status_code: "{{ '{{' }}.statuscode{{ '}}' }}"
     server:
-      host: "{{ ansible_eth0.ipv4.address }}"
+      host: "{{ ansible_default_ipv4.address }}"
       port: 9144
