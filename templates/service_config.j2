@@ -12,5 +12,5 @@ metrics:
     {{ item.metrics | to_nice_yaml(indent=4) | indent(4, False) }}
 
 server:
-  host: {{ item.server.host | default(ansible_eth0.ipv4.address) }}
+  host: {{ item.server.host | default(ansible_default_ipv4.address) }}
   port: 9144
